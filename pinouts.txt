@@ -1,0 +1,15 @@
+Gas Sensor:-
+Analog out - A1
+Digital out - NC
+
+PIR Sensor:-
+out pin :- D13
+distance = >60cm
+
+Stepper Motor door:-
+A,B,C,D :- D4,D5,D6,D7
+
+Ultrasonic Dry:-
+echo :- D2
+trig :- D3
+distance = 26cm
