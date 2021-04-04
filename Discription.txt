@@ -1,0 +1,31 @@
+MQ2 Gas Sensor:-
+It Operates on +5V DC and gives analog output voltage: 0V to 5V
+It is used to Measure or detect LPG, Alcohol, Propane, Hydrogen, CO and even methane. It requires Preheat duration for 20 seconds
+When the concentration of gas > 280, Green LED will Glow showing that there is an harmfull Gas or Smoke in the Dustbin
+pin 1(VCC) is connected to 5V supply
+pin 2(GND) is connected to Ground
+pin 3(DO) Not connected
+pin 4(AO) is connected to Analog input pin(A1) of Arduino
+
+PIR Sensor:-
+A passive infrared sensor is an electronic sensor that measures infrared (IR) light radiating from objects in its field of view.
+It works with +5V to +12V DC supply.It has 2 adjustment knobs, sensitivity and time delay.
+When a human will be detected near the dustbin, the door of the dustbin will get open by the help of stepper motor and Blue LED gets ON.  
+pin 1(VCC) is connected to 5V supply
+pin 2(DO) is connected to Digital Input pin(D13) of Arduino
+pin 3(GND) is connected to Ground
+
+Ultrasonic Sensor:-
+This HC-SR04 ultrasonic distance sensor provides 2cm to 400cm of non-contact measurement.
+It will indicate "FULL(Red LED ON)" when the distance of waste is less than 26cm  
+pin 1(VCC) is connected to 5V supply
+pin 2(TRIG) is connected to Digital Input pin(D3) of Arduino
+pin 3(ECHO) is connected to Digital Input pin(D2) of Arduino
+pin 4(GND) is connected to Ground
+
+Stepper Motor:-
+A stepper motor is an electric motor whose main feature is that its shaft rotates by performing steps, that is, by moving by a fixed amount of degrees.
+It Operates on +5V DC supply, and requires additional motor driver IC(ULN2003).As the PIR Sensor Sense the human it ON's Stepper Motor to open the door.
+Pin Connection:-         
+Arduino       ULN2003(i/p)    ULN2003(o/p)   Motor
+D7,D6,D5,D4   1,2,3,4         16,15,14,13    A,B,C,D
