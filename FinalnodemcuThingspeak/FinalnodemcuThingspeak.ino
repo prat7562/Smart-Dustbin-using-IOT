@@ -76,65 +76,64 @@ Serial.begin(9600);
   {
   pinMode(dPin_gas, OUTPUT);//Gas_sensor
   pinMode(dPin_moisture, OUTPUT);//Moisture_sensor
+  digitalWrite(dPin_gas, HIGH); // Turn gas On
+  digitalWrite(dPin_moisture, LOW); // Turn moisture Off
+  Serial.println("Gas sensor warming up!");
+  delay(20000); //MQ-2 warming up
   }
 //Servo Motor Setup
   {
- Servo_door.attach(servopin_door);
- Servo_tilt.attach(servopin_tilt); 
+  Servo_door.attach(servopin_door);
+  Servo_tilt.attach(servopin_tilt); 
   }
-  
 }
 //void setup finish
 
-
 void loop()
 {
+PirSensor(); 
+MoistureSensor();
 getSendData_dry();
 getSendData_wet();
-PirSensor();
-MoistureSensor();
 GasSensor();
 Thifunc(); 
 }
 
 void Thifunc() 
 {
+ if (client.connect(server,80))   //   "184.106.153.149" or api.thingspeak.com
+ {  
+  String postStr = apiKey;
+  postStr +="&field1=";
+  postStr += String(cm_wet);
 
-                         if (client.connect(server,80))   //   "184.106.153.149" or api.thingspeak.com
-                      {  
-                             String postStr = apiKey;
-                             postStr +="&field1=";
-                             postStr += String(cm_wet);
+  postStr +="&field2=";
+  postStr += String(cm_dry);
 
-                             postStr +="&field2=";
-                             postStr += String(cm_dry);
-
-                             postStr +="&field3=";
-                             postStr += String(read_gas);
-                             postStr += "\r\n\r\n\r\n";
+  postStr +="&field3=";
+  postStr += String(read_gas);
+  postStr += "\r\n\r\n\r\n";
  
-                             client.print("POST /update HTTP/1.1\n");
-                             client.print("Host: api.thingspeak.com\n");
-                             client.print("Connection: close\n");
-                             client.print("X-THINGSPEAKAPIKEY: "+apiKey+"\n");
-                             client.print("Content-Type: application/x-www-form-urlencoded\n");
-                             client.print("Content-Length: ");
-                             client.print(postStr.length());
-                             client.print("\n\n");
-                             client.print(postStr);
+  client.print("POST /update HTTP/1.1\n");
+  client.print("Host: api.thingspeak.com\n");
+  client.print("Connection: close\n");
+  client.print("X-THINGSPEAKAPIKEY: "+apiKey+"\n");
+  client.print("Content-Type: application/x-www-form-urlencoded\n");
+  client.print("Content-Length: ");
+  client.print(postStr.length());
+  client.print("\n\n");
+  client.print(postStr);
  
-                             Serial.print("Wet = : ");
-                             Serial.print(cm_wet);
-                             Serial.print("Dry = : ");
-                             Serial.print(cm_dry);
-                             Serial.print("Gas = : ");
-                             Serial.print(read_gas);
-                             Serial.println("Send to Thingspeak.");
-                        }
-          client.stop();
- 
-          Serial.println("Waiting...");
-  
+  Serial.print("Wet = : ");
+  Serial.print(cm_wet);
+  Serial.print("Dry = : ");
+  Serial.print(cm_dry);
+  Serial.print("Gas = : ");
+  Serial.print(read_gas);
+  Serial.println("Send to Thingspeak.");
+  }
+  client.stop();
+  Serial.println("Waiting...");
   // thingspeak needs minimum 15 sec delay between updates, i've set it to 30 seconds
   delay(10000);
 }
@@ -311,8 +310,6 @@ int analogRead_Gas()
 {
  digitalWrite(dPin_gas, HIGH); // Turn gas On
  digitalWrite(dPin_moisture, LOW); // Turn moisture Off
- Serial.println("Gas sensor warming up!");
- delay(20000); //MQ-2 warming up
  return analogRead(0);
 }
 
