@@ -7,3 +7,6 @@ Upload all files in GitHub
 
 # Components Required :
 [FinalYearProject_Components List.xlsx](https://github.com/prat7562/Smart-Dustbin-using-IOT/files/6372146/FinalYearProject_Components.List.xlsx)
+
+# Pin Outs :
+[PinDiagram.xlsx](https://github.com/prat7562/Smart-Dustbin-using-IOT/files/6372168/PinDiagram.xlsx)
