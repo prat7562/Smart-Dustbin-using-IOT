@@ -21,11 +21,11 @@ const int echoPin_dry = 12; // D6
 long duration_dry, cm_dry;
 
 //defining Servo_door
-int servopin_door = 5; 
+int servopin_door = 5; // D1
 Servo Servo_door; 
 
 //defining Servo_tilt
-int servopin_tilt = 4; 
+int servopin_tilt = 4; // D2
 Servo Servo_tilt; 
 
 //defining Pir Sensor
@@ -34,15 +34,15 @@ long unsigned int lowIn;//the amount of milliseconds the sensor has to be low
 long unsigned int pause = 5000;//before we assume all motion has stopped
 boolean lockLow = true;
 boolean takeLowTime;
-int pirPin = 16; //D0
+int pirPin = 16; // D0
 
 //defining Gas Sensor
 int read_gas;
-int dPin_gas = 13;
+int dPin_gas = 13; // D7
 
 //defining Moisture Sensor
 int read_moisture;
-int dPin_moisture = 15;
+int dPin_moisture = 15; // D8
  
 //Void setup 
 void setup()
@@ -207,12 +207,12 @@ void MoistureSensor()
     if(read_moisture < 1000)
     {
      Tilt_Dry();
-     delay(5000);
+     delay(2000);
     }
     else
     {
      Tilt_Wet();
-     delay(5000);
+     delay(2000);
     }	
 }//moisture and gas finish
 
@@ -263,7 +263,6 @@ duration_dry = pulseIn(echoPin_dry, HIGH);
 cm_dry = microsecondsToCentimeters(duration_dry);
 Serial.print("cm_dry = ");   
 Serial.println(cm_dry); 
-
 }
 
 void getSendData_wet()
@@ -281,7 +280,6 @@ cm_wet = microsecondsToCentimeters(duration_wet);
 Serial.print("cm_wet = ");   
 Serial.println(cm_wet);
 }
-
 
 long microsecondsToCentimeters(long microseconds)
 {
