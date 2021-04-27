@@ -92,12 +92,185 @@ Serial.begin(9600);
 void loop()
 {
 PirSensor(); 
-MoistureSensor();
 getSendData_dry();
 getSendData_wet();
 GasSensor();
-Thifunc(); 
-}
+Thifunc();
+}//loop finish
+
+void PirSensor()
+{
+  if(digitalRead(pirPin) == HIGH)
+  {
+   door_open();
+   
+   if(lockLow)
+   {
+    lockLow = false;
+	  Serial.println("---");
+	  Serial.print("motion detected at : ");
+	  Serial.print(millis()/1000);
+	  Serial.println(" sec");
+	  delay(50);
+   }
+   takeLowTime = true;
+   MoistureSensor();
+  }
+  if(digitalRead(pirPin) == LOW)
+  {
+   door_close();
+   if(takeLowTime)
+   {
+    lowIn = millis(); //save the time of the transition from high to LOW
+	  takeLowTime = false;
+   }
+   //if the sensor is low for more than the given pause,
+   //we assume that no more motion is going to happen
+   if(!lockLow && millis() - lowIn > pause)
+   {
+   //makes sure this block of code is only executed again after
+   //a new motion sequence has been detected
+   lockLow = true;
+   Serial.print("motion ended at : "); //output
+   Serial.print((millis() - pause)/1000);
+   Serial.println(" sec");
+   delay(50);
+   }
+  }
+}//PIR finish
+
+void door_open()
+{
+   // Make servo go to 90 degrees 
+   Servo_door.write(90); 
+   delay(1000); 
+   // Make servo go to 0 degrees 
+   Servo_door.write(0); 
+   delay(5000);
+}//door open finish
+
+void door_close()
+{
+   // Make servo go to 0 degrees 
+   Servo_door.write(0); 
+   delay(1000); 
+   // Make servo go to 90 degrees 
+   Servo_door.write(90); 
+   delay(5000);
+}//door close finish
+
+void MoistureSensor()
+{
+    read_moisture = analogRead_Moisture(); // Read Analog value of second sensor
+    delay(2000);
+    Serial.print("Moisture sensor = ");
+    Serial.println(read_moisture);
+    if(read_moisture < 1000)
+    {
+     Tilt_Dry();
+     delay(2000);
+    }
+    else
+    {
+     Tilt_Wet();
+     delay(2000);
+    }	
+}//moisture and gas finish
+
+int analogRead_Moisture()
+{
+ digitalWrite(dPin_gas, LOW); //  Turn gas Off
+ digitalWrite(dPin_moisture, HIGH); // Turn moisture On
+ return analogRead(0);
+}//read Moisture
+
+void Tilt_Dry()
+{
+   // Make servo go to 90 degrees 
+   Servo_tilt.write(90); 
+   delay(1000); 
+   // Make servo go to 0 degrees 
+   Servo_tilt.write(180); 
+   delay(5000);
+
+   Servo_tilt.write(90); 
+   delay(1000);
+}//tilt dry finish
+
+void Tilt_Wet()
+{
+   // Make servo go to 90 degrees 
+   Servo_tilt.write(90); 
+   delay(1000); 
+   // Make servo go to 0 degrees 
+   Servo_tilt.write(1); 
+   delay(5000);
+
+   Servo_tilt.write(90); 
+   delay(1000);
+}// tilt wet finish
+
+void getSendData_dry()
+{
+pinMode(pingPin_dry, OUTPUT);
+digitalWrite(pingPin_dry, LOW);
+delayMicroseconds(2);
+digitalWrite(pingPin_dry, HIGH);
+delayMicroseconds(10);
+digitalWrite(pingPin_dry, LOW);
+
+pinMode(echoPin_dry, INPUT);
+duration_dry = pulseIn(echoPin_dry, HIGH);
+cm_dry = microsecondsToCentimeters(duration_dry);
+Serial.print("cm_dry = ");   
+Serial.println(cm_dry); 
+}//dry sensor finish
+
+void getSendData_wet()
+{
+pinMode(pingPin_wet, OUTPUT);
+digitalWrite(pingPin_wet, LOW);
+delayMicroseconds(2);
+digitalWrite(pingPin_wet, HIGH);
+delayMicroseconds(10);
+digitalWrite(pingPin_wet, LOW);
+
+pinMode(echoPin_wet, INPUT);
+duration_wet = pulseIn(echoPin_wet, HIGH);
+cm_wet = microsecondsToCentimeters(duration_wet);
+Serial.print("cm_wet = ");   
+Serial.println(cm_wet);
+}//wet sensor finish
+
+long microsecondsToCentimeters(long microseconds)
+{
+ return microseconds / 29 / 2;
+}//ultrasonic sensor calculation finish
+
+void GasSensor()
+{
+    read_gas = analogRead_Gas(); // Read Analog value of first sensor
+    delay(2000);
+    Serial.print("Gas sensor = ");
+    Serial.println(read_gas);
+    if(read_gas > 238)
+    {
+     Serial.println("Harmfull Gas detected");
+     delay(1000); // wait 2s for next reading
+    }
+ 	else
+ 	  {
+     Serial.println("No Harmfull Gas");  
+     delay(1000); // wait 2s for next reading
+ 	  }
+}//gas finish
+
+int analogRead_Gas()
+{
+ digitalWrite(dPin_gas, HIGH); // Turn gas On
+ digitalWrite(dPin_moisture, LOW); // Turn moisture Off
+ return analogRead(0);
+}// read Gas
 
 void Thifunc() 
 {
@@ -136,178 +309,4 @@ void Thifunc()
   Serial.println("Waiting...");
   // thingspeak needs minimum 15 sec delay between updates, i've set it to 30 seconds
   delay(10000);
-}
-
-void PirSensor()
-{
-  if(digitalRead(pirPin) == HIGH)
-  {
-   door_open();
-   
-   if(lockLow)
-   {
-    lockLow = false;
-	  Serial.println("---");
-	  Serial.print("motion detected at : ");
-	  Serial.print(millis()/1000);
-	  Serial.println(" sec");
-	  delay(50);
-   }
-   takeLowTime = true;
-  }
-  if(digitalRead(pirPin) == LOW)
-  {
-   door_close();
-   if(takeLowTime)
-   {
-    lowIn = millis(); //save the time of the transition from high to LOW
-	  takeLowTime = false;
-   }
-   //if the sensor is low for more than the given pause,
-   //we assume that no more motion is going to happen
-   if(!lockLow && millis() - lowIn > pause)
-   {
-   //makes sure this block of code is only executed again after
-   //a new motion sequence has been detected
-   lockLow = true;
-   Serial.print("motion ended at : "); //output
-   Serial.print((millis() - pause)/1000);
-   Serial.println(" sec");
-   delay(50);
-   }
-  }
-}//PIR finish
-
-void door_open()
-{
-   // Make servo go to 90 degrees 
-   Servo_door.write(90); 
-   delay(1000); 
-   // Make servo go to 0 degrees 
-   Servo_door.write(0); 
-   delay(5000);
-}
-
-void door_close()
-{
-   // Make servo go to 0 degrees 
-   Servo_door.write(0); 
-   delay(1000); 
-   // Make servo go to 90 degrees 
-   Servo_door.write(90); 
-   delay(5000);
-}
-
-void MoistureSensor()
-{
-    read_moisture = analogRead_Moisture(); // Read Analog value of second sensor
-    delay(2000);
-    Serial.print("Moisture sensor = ");
-    Serial.println(read_moisture);
-    if(read_moisture < 1000)
-    {
-     Tilt_Dry();
-     delay(2000);
-    }
-    else
-    {
-     Tilt_Wet();
-     delay(2000);
-    }	
-}//moisture and gas finish
-
-int analogRead_Moisture()
-{
- digitalWrite(dPin_gas, LOW); //  Turn gas Off
- digitalWrite(dPin_moisture, HIGH); // Turn moisture On
- return analogRead(0);
-}
-
-void Tilt_Dry()
-{
-   // Make servo go to 90 degrees 
-   Servo_tilt.write(90); 
-   delay(1000); 
-   // Make servo go to 0 degrees 
-   Servo_tilt.write(180); 
-   delay(5000);
-
-   Servo_tilt.write(90); 
-   delay(1000);
-}
-
-void Tilt_Wet()
-{
-   // Make servo go to 90 degrees 
-   Servo_tilt.write(90); 
-   delay(1000); 
-   // Make servo go to 0 degrees 
-   Servo_tilt.write(1); 
-   delay(5000);
-
-   Servo_tilt.write(90); 
-   delay(1000);
-}
-
-void getSendData_dry()
-{
-pinMode(pingPin_dry, OUTPUT);
-digitalWrite(pingPin_dry, LOW);
-delayMicroseconds(2);
-digitalWrite(pingPin_dry, HIGH);
-delayMicroseconds(10);
-digitalWrite(pingPin_dry, LOW);
-
-pinMode(echoPin_dry, INPUT);
-duration_dry = pulseIn(echoPin_dry, HIGH);
-cm_dry = microsecondsToCentimeters(duration_dry);
-Serial.print("cm_dry = ");   
-Serial.println(cm_dry); 
-}
-
-void getSendData_wet()
-{
-pinMode(pingPin_wet, OUTPUT);
-digitalWrite(pingPin_wet, LOW);
-delayMicroseconds(2);
-digitalWrite(pingPin_wet, HIGH);
-delayMicroseconds(10);
-digitalWrite(pingPin_wet, LOW);
-
-pinMode(echoPin_wet, INPUT);
-duration_wet = pulseIn(echoPin_wet, HIGH);
-cm_wet = microsecondsToCentimeters(duration_wet);
-Serial.print("cm_wet = ");   
-Serial.println(cm_wet);
-}
-
-long microsecondsToCentimeters(long microseconds)
-{
- return microseconds / 29 / 2;
-}
-
-void GasSensor()
-{
-    read_gas = analogRead_Gas(); // Read Analog value of first sensor
-    delay(2000);
-    Serial.print("Gas sensor = ");
-    Serial.println(read_gas);
-    if(read_gas > 238)
-    {
-     Serial.println("Harmfull Gas detected");
-     delay(1000); // wait 2s for next reading
-    }
- 	else
- 	  {
-     Serial.println("No Harmfull Gas");  
-     delay(1000); // wait 2s for next reading
- 	  }
-}//gas finish
-
-int analogRead_Gas()
-{
- digitalWrite(dPin_gas, HIGH); // Turn gas On
- digitalWrite(dPin_moisture, LOW); // Turn moisture Off
- return analogRead(0);
-}
-
+} // ThingSpeak finish
