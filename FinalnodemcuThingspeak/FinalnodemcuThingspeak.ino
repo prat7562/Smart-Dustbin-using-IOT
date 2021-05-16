@@ -91,7 +91,7 @@ Serial.begin(9600);
 
 void loop()
 {
-PirSensor(); 
+PirSensor();
 getSendData_dry();
 getSendData_wet();
 GasSensor();
@@ -165,7 +165,7 @@ void MoistureSensor()
     delay(2000);
     Serial.print("Moisture sensor = ");
     Serial.println(read_moisture);
-    if(read_moisture < 1000)
+    if(read_moisture < 900)
     {
      Tilt_Dry();
      delay(2000);
@@ -190,7 +190,7 @@ void Tilt_Dry()
    Servo_tilt.write(90); 
    delay(1000); 
    // Make servo go to 0 degrees 
-   Servo_tilt.write(180); 
+   Servo_tilt.write(135); 
    delay(5000);
 
    Servo_tilt.write(90); 
@@ -203,7 +203,7 @@ void Tilt_Wet()
    Servo_tilt.write(90); 
    delay(1000); 
    // Make servo go to 0 degrees 
-   Servo_tilt.write(1); 
+   Servo_tilt.write(40); 
    delay(5000);
 
    Servo_tilt.write(90); 
